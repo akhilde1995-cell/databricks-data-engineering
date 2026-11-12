@@ -10,17 +10,11 @@ on:
     branches:
       - main
 
-  workflow_dispatch:
-
-permissions:
-  contents: read
-
 jobs:
 
-  # Job 1: Validate the Databricks Asset Bundle
+  # Job 1: Validate Databricks Bundle
   validate:
     name: Validate Bundle
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     env:
@@ -36,11 +30,18 @@ jobs:
 
       - name: Validate Databricks Bundle
         run: databricks bundle validate --target dev
+
 
   # Job 2: Deploy to Databricks
   deploy:
     name: Deploy to Databricks
+
+    # Deploy only after validation succeeds
+    needs: validate
+
+    # Deploy only when changes are pushed to main
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
     runs-on: ubuntu-latest
 
     env:
@@ -53,9 +54,6 @@ jobs:
 
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
-
-      - name: Validate Databricks Bundle
-        run: databricks bundle validate --target dev
 
       - name: Deploy Databricks Bundle
         run: databricks bundle deploy --target dev
