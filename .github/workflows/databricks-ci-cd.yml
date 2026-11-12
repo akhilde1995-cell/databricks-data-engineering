@@ -49,11 +49,17 @@ jobs:
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+     - name: Checkout repository
+       uses: actions/checkout@v4
 
-      - name: Install Databricks CLI
-        uses: databricks/setup-cli@main
+     - name: Install Databricks CLI
+       uses: databricks/setup-cli@main
 
-      - name: Deploy Databricks Bundle
-        run: databricks bundle deploy --target dev
+     - name: Validate Databricks Bundle
+       run: databricks bundle validate --target dev
+
+     - name: Deploy Databricks Bundle
+       run: databricks bundle deploy --target dev
+
+     - name: Run Bronze Ingestion Job
+       run: databricks bundle run bronze_ingestion_job --target dev
